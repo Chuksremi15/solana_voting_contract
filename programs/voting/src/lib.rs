@@ -32,6 +32,33 @@ pub mod voting {
         candidate.candidate_votes = 0;
         Ok(())
     }
+
+    pub fn vote(ctx: Context<Vote>, _poll_id: u64, _candidate_name: String) -> Result<()> {
+        let candidate = &mut ctx.accounts.candidate_account;
+        candidate.candidate_votes += 1;
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+#[instruction(poll_id: u64, candidate_name: String)]
+pub struct Vote<'info> {
+    #[account(mut)]
+    pub signer: Signer<'info>,
+
+    #[account(
+        mut,
+        seeds = [b"poll".as_ref(), poll_id.to_le_bytes().as_ref()],
+        bump
+    )]
+    pub poll_account: Account<'info, PollAccount>,
+
+    #[account(
+        mut,
+        seeds = [poll_id.to_le_bytes().as_ref(), candidate_name.as_bytes().as_ref()],
+        bump
+    )]
+    pub candidate_account: Account<'info, CandidateAccount>,
 }
 
 #[derive(Accounts)]

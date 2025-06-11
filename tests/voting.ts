@@ -63,4 +63,19 @@ describe('Voting', () => {
     expect(rodriquez.candidateName.toString()).equal('Rodriquez')
     expect(rodriquez.candidateVotes.toNumber()).equal(0)
   })
+
+  it('Vote', async () => {
+    // Add your test here.
+    await votingProgram.methods.vote(new anchor.BN(1), 'Rodriquez').rpc()
+
+    const [rodriquezAddress] = PublicKey.findProgramAddressSync(
+      [new anchor.BN(1).toArrayLike(Buffer, 'le', 8), Buffer.from('Rodriquez')],
+      votingAddress,
+    )
+
+    const rodriquez = await votingProgram.account.candidateAccount.fetch(rodriquezAddress)
+
+    expect(rodriquez.candidateName.toString()).equal('Rodriquez')
+    expect(rodriquez.candidateVotes.toNumber()).equal(1)
+  })
 })
